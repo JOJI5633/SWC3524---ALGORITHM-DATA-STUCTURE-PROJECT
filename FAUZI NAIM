@@ -1,0 +1,139 @@
+import java.util.PriorityQueue;
+
+public class fauzihensem {
+
+    // ================= MIN HEAP =================
+    static class MinHeap {
+        PriorityQueue<Integer> heap;
+
+        public MinHeap() {
+            heap = new PriorityQueue<>();
+        }
+
+        // Insert value
+        public void insert(int value) {
+            heap.add(value);
+        }
+
+        // Extract minimum
+        public int extractMin() {
+            if (heap.isEmpty()) return -1;
+            return heap.poll();
+        }
+
+        // Peek minimum
+        public int peek() {
+            if (heap.isEmpty()) return -1;
+            return heap.peek();
+        }
+    }
+
+    // ================= SPLAY TREE =================
+    static class SplayTree {
+
+        class Node {
+            int key;
+            Node left, right;
+
+            Node(int key) {
+                this.key = key;
+            }
+        }
+
+        Node root;
+
+        // Right rotation
+        Node rightRotate(Node x) {
+            Node y = x.left;
+            x.left = y.right;
+            y.right = x;
+            return y;
+        }
+
+        // Left rotation
+        Node leftRotate(Node x) {
+            Node y = x.right;
+            x.right = y.left;
+            y.left = x;
+            return y;
+        }
+
+        // Splay operation
+        Node splay(Node root, int key) {
+            if (root == null || root.key == key)
+                return root;
+
+            if (key < root.key) {
+                if (root.left == null) return root;
+
+                if (key < root.left.key) {
+                    root.left.left = splay(root.left.left, key);
+                    root = rightRotate(root);
+                } else if (key > root.left.key) {
+                    root.left.right = splay(root.left.right, key);
+                    if (root.left.right != null)
+                        root.left = leftRotate(root.left);
+                }
+
+                return (root.left == null) ? root : rightRotate(root);
+
+            } else {
+                if (root.right == null) return root;
+
+                if (key > root.right.key) {
+                    root.right.right = splay(root.right.right, key);
+                    root = leftRotate(root);
+                } else if (key < root.right.key) {
+                    root.right.left = splay(root.right.left, key);
+                    if (root.right.left != null)
+                        root.right = rightRotate(root.right);
+                }
+
+                return (root.right == null) ? root : leftRotate(root);
+            }
+        }
+
+        // Insert a key
+        void insert(int key) {
+            root = insertRec(root, key);
+        }
+
+        Node insertRec(Node root, int key) {
+            if (root == null) return new Node(key);
+
+            if (key < root.key) root.left = insertRec(root.left, key);
+            else root.right = insertRec(root.right, key);
+
+            return root;
+        }
+
+        // Search a key
+        boolean search(int key) {
+            root = splay(root, key);
+            return root != null && root.key == key;
+        }
+    }
+
+    // ================= MAIN =================
+    public static void main(String[] args) {
+
+        System.out.println("=== MIN HEAP TEST ===");
+        MinHeap heap = new MinHeap();
+        heap.insert(10);
+        heap.insert(3);
+        heap.insert(15);
+        System.out.println("Min value (peek): " + heap.peek());
+        System.out.println("Extract Min: " + heap.extractMin());
+        System.out.println("Extract Min: " + heap.extractMin());
+        System.out.println("Extract Min: " + heap.extractMin());
+
+        System.out.println("\n=== SPLAY TREE TEST ===");
+        SplayTree tree = new SplayTree();
+        tree.insert(20);
+        tree.insert(10);
+        tree.insert(30);
+        System.out.println("Search 10: " + tree.search(10));
+        System.out.println("Search 20: " + tree.search(20));
+        System.out.println("Search 5: " + tree.search(5));
+    }
+}
